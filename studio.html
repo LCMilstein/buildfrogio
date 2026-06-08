@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Workshop Studio</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css">
+    
+    <!-- Three.js & Controls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+    
+    <!-- Monaco Editor Loader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #0f1319;
+            --bg-surface: rgba(22, 28, 38, 0.6);
+            --bg-surface-solid: #161c26;
+            --border-glow: rgba(0, 242, 254, 0.15);
+            --border-mute: rgba(255, 255, 255, 0.08);
+            --text-main: #f3f4f6;
+            --text-mute: #9ca3af;
+            --accent: #00f2fe;
+            --accent-glow: rgba(0, 242, 254, 0.4);
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Glassmorphic scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 242, 254, 0.3);
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: rgba(15, 19, 25, 0.8);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-mute);
+            z-index: 100;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-select {
+            background: var(--bg-surface-solid);
+            border: 1px solid var(--border-mute);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-select:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--border-glow);
+        }
+
+        /* Printer Status Badge styles */
+        .printer-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-mute);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .printer-status.online {
+            border-color: rgba(16, 185, 129, 0.4);
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        .printer-status.offline {
+            border-color: rgba(239, 68, 68, 0.4);
+            color: var(--error);
+            background: rgba(239, 68, 68, 0.05);
+        }
+        .printer-status.unconfigured {
+            border-color: rgba(245, 158, 11, 0.4);
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+        .printer-status:hover {
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+        }
+
+        /* Layout Grid */
+        .workspace {
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            flex-grow: 1;
+            height: calc(100vh - 64px);
+            overflow: hidden;
+            background: radial-gradient(circle at 75% 25%, rgba(0, 242, 254, 0.03) 0%, transparent 60%);
+        }
+
+        /* Sidebar Panels */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-mute);
+            background: rgba(15, 19, 25, 0.4);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(22, 28, 38, 0.4);
+            border-bottom: 1px solid var(--border-mute);
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-mute);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Chat Pane */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 45%;
+            border-bottom: 1px solid var(--border-mute);
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-width: 90%;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .message.assistant {
+            align-self: flex-start;
+        }
+
+        .message-bubble {
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            user-select: text;
+        }
+
+        .user .message-bubble {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.1) 0%, rgba(0, 242, 254, 0.2) 100%);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            border-bottom-right-radius: 2px;
+        }
+
+        .assistant .message-bubble {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-mute);
+            border-bottom-left-radius: 2px;
+            color: var(--text-main);
+        }
+
+        .assistant .message-bubble code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .assistant .message-bubble pre {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            overflow-x: auto;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 12px;
+            user-select: text;
+        }
+
+        .code-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 4px;
+        }
+
+        .btn-use-code {
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-use-code:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .message-sender {
+            font-size: 10px;
+            color: var(--text-mute);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 4px;
+        }
+
+        .user .message-sender {
+            align-self: flex-end;
+            margin-right: 4px;
+        }
+
+        .chat-input-area {
+            padding: 12px;
+            background: rgba(22, 28, 38, 0.4);
+            border-bottom: 1px solid var(--border-mute);
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-mute);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--border-glow);
+        }
+
+        /* Editor Pane */
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            position: relative;
+            background: rgba(15, 19, 25, 0.2);
+        }
+
+        #editor {
+            width: 100%;
+            flex-grow: 1;
+            height: calc(100% - 48px);
+        }
+
+        .editor-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(22, 28, 38, 0.6);
+            border-top: 1px solid var(--border-mute);
+        }
+
+        /* Buttons */
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #080c10;
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-mute);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 3D View Container */
+        .viewport-panel {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: #0d1117;
+            height: 100%;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        /* Viewport overlays */
+        .viewport-overlay {
+            position: absolute;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .viewport-overlay * {
+            pointer-events: auto;
+        }
+
+        .view-controls-right {
+            right: 16px;
+            top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(22, 28, 38, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-mute);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-circle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 10px var(--border-glow);
+        }
+
+        .btn-circle.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+
+        .view-info-bottom {
+            left: 16px;
+            bottom: 16px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: rgba(22, 28, 38, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-mute);
+            font-size: 12px;
+            display: flex;
+            gap: 16px;
+            color: var(--text-mute);
+        }
+
+        .info-item span {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .console-log-area {
+            position: absolute;
+            bottom: 50px;
+            left: 16px;
+            right: 16px;
+            max-height: 120px;
+            border-radius: 8px;
+            background: rgba(15, 19, 25, 0.9);
+            border: 1px solid var(--border-mute);
+            z-index: 30;
+            padding: 8px 12px;
+            display: none;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--error);
+        }
+
+        .console-log-area.show {
+            display: block;
+        }
+
+        /* Spinner & Progress */
+        .loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 19, 25, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-screen.show {
+            display: flex;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(0, 242, 254, 0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+            margin-bottom: 16px;
+        }
+
+        .loading-text {
+            font-size: 14px;
+            color: var(--accent);
+            letter-spacing: 0.5px;
+        }
+
+        /* Dialogs / Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 19, 25, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            width: 420px;
+            background: var(--bg-surface-solid);
+            border: 1px solid var(--border-mute);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .modal-description {
+            font-size: 14px;
+            color: var(--text-mute);
+            line-height: 1.4;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            color: var(--text-mute);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-mute);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        /* Toasts */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            background: rgba(22, 28, 38, 0.9);
+            border: 1px solid var(--border-mute);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            z-index: 300;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            font-size: 18px;
+        }
+
+        .toast.success { border-color: var(--success); }
+        .toast.success .toast-icon { color: var(--success); }
+        .toast.error { border-color: var(--error); }
+        .toast.error .toast-icon { color: var(--error); }
+
+        /* Keyframes */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Overlay -->
+    <div id="auth-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(16px); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 40px; border-radius: 24px; box-shadow: 0 24px 64px rgba(0,0,0,0.5); text-align: center; max-width: 400px; width: 90%;">
+            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #00f2fe, #4facfe); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+                <span class="mdi mdi-lock-outline" style="font-size: 32px; color: white;"></span>
+            </div>
+            <h2 style="font-family: 'Outfit', sans-serif; font-size: 24px; margin-bottom: 8px; font-weight: 600;">Secure Access</h2>
+            <p style="color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 24px;">Enter the workshop password to continue.</p>
+            <input type="password" id="auth-password" placeholder="Password" style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; outline: none; margin-bottom: 16px; font-family: 'Inter', sans-serif; text-align: center; font-size: 16px;">
+            <button id="auth-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px; justify-content: center;">Unlock Workshop</button>
+            <div id="auth-error" style="color: #ef4444; font-size: 13px; margin-top: 12px; display: none;">Incorrect password.</div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-group">
+            <span class="mdi mdi-cube-outline logo-icon"></span>
+            <h1>3D Workshop Studio</h1>
+        </div>
+        <div class="header-controls">
+            <!-- Language Selection -->
+            <select id="lang-select" class="control-select">
+                <option value="build123d" selected>Build123d (Python)</option>
+                <option value="openscad">OpenSCAD</option>
+                <option value="cadquery">CadQuery (Python)</option>
+            </select>
+            
+            <!-- AI Model Selection -->
+            <select id="model-select" class="control-select">
+                <optgroup label="Local Ollama (Free)">
+                    <option value="ollama/qwen2.5:7b" selected>Qwen 2.5 (7B)</option>
+                    <option value="ollama/deepseek-r1:7b">DeepSeek-R1 (7B)</option>
+                    <option value="ollama/gemma2:9b">Gemma 2 (9B)</option>
+                    <option value="ollama/llama3.2:3b">Llama 3.2 (3B)</option>
+                </optgroup>
+                <optgroup label="Google Gemini">
+                    <option value="gemini/gemini-2.5-pro">Gemini 2.5 Pro</option>
+                    <option value="gemini/gemini-2.0-flash">Gemini 2.0 Flash</option>
+                    <option value="gemini/gemini-1.5-pro">Gemini 1.5 Pro</option>
+                    <option value="gemini/gemini-1.5-flash">Gemini 1.5 Flash</option>
+                </optgroup>
+                <optgroup label="Anthropic Claude">
+                    <option value="anthropic/claude-3-5-sonnet-latest">Claude 3.5 Sonnet</option>
+                    <option value="anthropic/claude-3-5-haiku-latest">Claude 3.5 Haiku</option>
+                    <option value="anthropic/claude-3-opus-latest">Claude 3 Opus</option>
+                </optgroup>
+                <optgroup label="OpenAI GPT">
+                    <option value="openai/gpt-4o">GPT-4o</option>
+                    <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+                    <option value="openai/o1-mini">o1-mini</option>
+                </optgroup>
+            </select>
+
+            <!-- Printer Status Badge -->
+            <div id="printer-status-badge" class="printer-status" title="Bambu Lab Printer Status">
+                <span class="mdi mdi-printer-3d"></span>
+                <span id="printer-status-text">Checking...</span>
+            </div>
+
+            <!-- Settings Dropdown -->
+            <div style="position: relative; display: inline-block;">
+                <button id="btn-settings-dropdown" class="btn-circle" style="width: 34px; height: 34px; font-size: 16px; border-radius: 8px;" title="Settings">
+                    <span class="mdi mdi-cog-outline"></span>
+                </button>
+                <div id="settings-menu" style="display: none; position: absolute; right: 0; top: 40px; background: #1e1e24; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; width: 160px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.5); padding: 4px;">
+                    <div id="menu-ai-settings" style="padding: 8px 12px; cursor: pointer; font-size: 13px; color: var(--text-main); display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                        <span class="mdi mdi-robot-outline"></span> AI Settings
+                    </div>
+                    <div id="menu-slicer-settings" style="padding: 8px 12px; cursor: pointer; font-size: 13px; color: var(--text-main); display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                        <span class="mdi mdi-tune"></span> Slicer Settings
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="workspace">
+        <!-- Sidebar: Chat & Code -->
+        <div class="sidebar">
+            <!-- Chat section -->
+            <div class="chat-container">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="mdi mdi-robot-outline"></span>
+                        AI CAD Assistant
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <button id="btn-load-design" class="btn btn-secondary" style="padding: 4px 8px; font-size: 13px; height: 38px;">
+                        <span class="mdi mdi-folder-open"></span> Load Design
+                    </button>
+                    <input type="text" id="chat-input" class="chat-input" placeholder="Type prompt e.g., 'Make a phone stand'...">
+                    <button id="btn-send-chat" class="btn btn-primary" style="padding: 8px 12px; height: 38px;">
+                        <span class="mdi mdi-send"></span>
+                    </button>
+                </div>
+                <div id="chat-messages" class="chat-messages">
+                    <div class="message assistant">
+                        <div class="message-bubble">
+                            Hello! Let's generate a 3D part. Select a model/language above, tell me what you want to design, and I will write the script for you.
+                        </div>
+                        <span class="message-sender">Assistant</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Editor section -->
+            <div class="editor-container">
+                <div class="panel-header" style="display: flex; justify-content: space-between;">
+                    <div class="panel-title">
+                        <span class="mdi mdi-code-braces"></span>
+                        Script Editor
+                    </div>
+                    <button id="btn-clear" class="btn-circle" style="width: 28px; height: 28px; background: rgba(255,100,100,0.1); color: #ff6b6b; border: 1px solid rgba(255,100,100,0.2); border-radius: 6px;" title="Clear Editor">
+                        <span class="mdi mdi-delete-outline" style="font-size: 14px;"></span>
+                    </button>
+                </div>
+                <!-- Monaco editor host -->
+                <div id="editor"></div>
+                
+                <div class="editor-actions">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                        <button id="btn-run" class="btn btn-primary">
+                            <span class="mdi mdi-play"></span>
+                            Run
+                        </button>
+
+                        <button id="btn-save" class="btn btn-secondary" disabled>
+                            <span class="mdi mdi-content-save"></span>
+                            Save
+                        </button>
+                        <button id="btn-print" class="btn btn-secondary" disabled style="border-color: rgba(0, 242, 254, 0.3); color: var(--accent);">
+                            <span class="mdi mdi-printer-3d"></span>
+                            Print
+                        </button>
+                        <button id="btn-cancel-print" class="btn btn-secondary" style="border-color: rgba(255, 100, 100, 0.3); color: #ff6b6b;">
+                            <span class="mdi mdi-cancel"></span>
+                            Cancel
+                        </button>
+                        <select id="select-printer" class="control-select" style="padding: 6px 8px; font-size: 13px; border-radius: 8px; height: 34px;">
+                            <option value="a1_mini" selected>Bambu A1 Mini</option>
+                            <option value="x1c">Bambu X1 Carbon</option>
+                            <option value="p1">Bambu P1S/P1P</option>
+                        </select>
+                        <select id="select-filament" class="control-select" style="padding: 6px 8px; font-size: 13px; border-radius: 8px; height: 34px;">
+                            <option value="PLA" selected>PLA</option>
+                            <option value="PETG">PETG</option>
+                            <option value="TPU">TPU</option>
+                        </select>
+                        <select id="select-ams" class="control-select" style="padding: 6px 8px; font-size: 13px; border-radius: 8px; height: 34px;">
+                            <option value="-1">External / No AMS</option>
+                            <option value="0">AMS Slot 1</option>
+                            <option value="1">AMS Slot 2</option>
+                            <option value="2">AMS Slot 3</option>
+                            <option value="3">AMS Slot 4</option>
+                        </select>
+                        <select id="select-plate" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 4px 8px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px; outline: none; cursor: pointer;">
+                            <option value="cool">Cool Plate</option>
+                            <option value="textured">Textured PEI</option>
+                        </select>
+                        <div style="display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 8px;">
+                            <span class="mdi mdi-thermometer" style="color: #ff5252; font-size: 14px;"></span>
+                            <input type="number" id="input-nozzle-temp" value="220" style="width: 50px; background: transparent; border: none; color: white; font-family: 'Inter', sans-serif; font-size: 13px; outline: none;" title="Nozzle Temperature">°C
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 8px;">
+                            <span class="mdi mdi-heating-coil" style="color: #ffb74d; font-size: 14px;"></span>
+                            <input type="number" id="input-bed-temp" value="45" style="width: 50px; background: transparent; border: none; color: white; font-family: 'Inter', sans-serif; font-size: 13px; outline: none;" title="Bed Temperature">°C
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 8px;">
+                            <span class="mdi mdi-layers-triple-outline" style="color: #4db6ac; font-size: 14px;"></span>
+                            <input type="number" id="input-perimeters" value="3" style="width: 40px; background: transparent; border: none; color: white; font-family: 'Inter', sans-serif; font-size: 13px; outline: none;" title="Perimeters (Wall loops)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3D Viewport Panel -->
+        <div class="viewport-panel">
+            <!-- 3D Canvas -->
+            <div id="canvas-container"></div>
+            
+            <!-- Viewport overlays -->
+            <div class="viewport-overlay view-controls-right">
+                <button id="btn-view-wireframe" class="btn-circle" title="Toggle Wireframe">
+                    <span class="mdi mdi-grid"></span>
+                </button>
+                <button id="btn-view-solid" class="btn-circle active" title="Toggle Solid Shading">
+                    <span class="mdi mdi-cube"></span>
+                </button>
+                <button id="btn-reset-view" class="btn-circle" title="Reset View">
+                    <span class="mdi mdi-compass-outline"></span>
+                </button>
+            </div>
+
+            <div class="viewport-overlay view-info-bottom">
+                <div class="info-item">Status: <span id="status-label">Idle</span></div>
+                <div class="info-item">Triangles: <span id="stats-triangles">0</span></div>
+                <div class="info-item">Renderer: <span id="stats-render">Solid</span></div>
+            </div>
+
+            <!-- Compiler Errors console -->
+            <div id="console-logs" class="console-log-area"></div>
+
+            <!-- Loading indicator -->
+            <div id="loading" class="loading-screen">
+                <div class="spinner"></div>
+                <div id="loading-text" class="loading-text">Compiling CAD Script...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save File Dialog Modal -->
+    <div id="modal-save" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-title">Save to Manyfold Library</div>
+            <div class="modal-description">This will export the compiled STL model directly to your shared library directory.</div>
+            
+            <div class="form-group">
+                <label class="form-label" for="input-filename">Filename</label>
+                <input type="text" id="input-filename" class="form-input" placeholder="e.g. phone_stand.stl">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="input-subfolder">Subfolder Collection (Optional)</label>
+                <input type="text" id="input-subfolder" class="form-input" placeholder="e.g. Phone Accessories">
+            </div>
+
+            <div class="modal-footer">
+                <button id="btn-modal-cancel" class="btn btn-secondary">Cancel</button>
+                <button id="btn-modal-confirm" class="btn btn-primary">Save to Library</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profiles Modal -->
+    <div id="modal-profiles" class="modal-overlay">
+        <div class="modal" style="width: 800px; max-width: 90vw;">
+            <div class="modal-title">Slicer Profiles</div>
+            <div style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="color: var(--text-mute); font-size: 13px;">Printer:</label>
+                    <select id="select-profile-printer" class="control-select" style="padding: 6px; font-size: 14px; background: rgba(255,255,255,0.05);">
+                        <option value="a1_mini">Bambu A1 Mini</option>
+                        <option value="x1c">Bambu X1 Carbon</option>
+                        <option value="p1">Bambu P1S/P1P</option>
+                    </select>
+                </div>
+                <div>
+                    <span id="profile-status" style="font-size: 13px; color: #ffb74d;"></span>
+                </div>
+            </div>
+            <textarea id="input-profile-editor" style="width: 100%; height: 400px; background: #0f111a; color: #a6accd; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; resize: vertical; line-height: 1.5;"></textarea>
+            <div class="modal-footer" style="margin-top: 16px;">
+                <button id="btn-profile-cancel" class="btn btn-secondary">Close</button>
+                <div style="display: flex; gap: 8px;">
+                    <button id="btn-profile-reset" class="btn btn-secondary" style="color: #ff6b6b; border-color: rgba(255,100,100,0.3); display: none;">Reset to Default</button>
+                    <button id="btn-profile-save" class="btn btn-primary">Save Profile Overrides</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- First Time User Welcome & Printer Guide Modal -->
+    <div id="modal-welcome" class="modal-overlay">
+        <div class="modal" style="width: 500px;">
+            <div class="modal-title" style="display: flex; align-items: center; gap: 10px;">
+                <span class="mdi mdi-rocket-launch-outline" style="color: var(--accent); font-size: 24px;"></span>
+                Welcome to 3D Workshop Studio!
+            </div>
+            <div class="modal-description">
+                Let's get you set up. This workspace allows you to generate models and print them directly to a Bambu Lab printer.
+            </div>
+
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-mute); padding: 14px; border-radius: 10px; display: flex; flex-direction: column; gap: 10px;">
+                <h4 style="font-size: 13px; color: var(--accent); display: flex; align-items: center; gap: 6px; margin-bottom: 0;">
+                    <span class="mdi mdi-cog-outline"></span> Printer Configuration
+                </h4>
+                <p style="font-size: 12px; color: var(--text-mute); line-height: 1.4;">
+                    To enable direct slicing and printing (bypassing Bambu Studio), configure your local printer settings.
+                </p>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-main); background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); line-height: 1.5; user-select: text;">
+                    1. In your project root, copy the template:<br>
+                    <span style="color: var(--accent); font-weight: bold;">cp .env.example .env</span><br><br>
+                    2. Edit the <span style="color: var(--accent); font-weight: bold;">.env</span> file and enter your printer's details:<br>
+                    - <span style="font-weight:bold;">BAMBU_PRINTER_IP</span> (e.g. 192.168.1.157)<br>
+                    - <span style="font-weight:bold;">BAMBU_PRINTER_SERIAL</span> (from printer info)<br>
+                    - <span style="font-weight:bold;">BAMBU_PRINTER_ACCESS_CODE</span> (8-digit LAN code)<br><br>
+                    3. Restart with <span style="color: var(--accent); font-weight: bold;">docker compose up --build</span>
+                </div>
+            </div>
+
+            <div style="background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.15); padding: 12px; border-radius: 10px; font-size: 12px; line-height: 1.4; color: var(--text-main); display: flex; gap: 8px;">
+                <span class="mdi mdi-information-outline" style="color: var(--accent); font-size: 16px; margin-top: 2px;"></span>
+                <span>The status indicator in the top-right header will turn <strong style="color:var(--success);">Green (Online)</strong> when the connection is established. You can click it any time to view this guide again.</span>
+            </div>
+
+            <div class="modal-footer">
+                <button id="btn-welcome-close" class="btn btn-primary" style="width: 100%; justify-content: center; font-weight: 600;">Let's Go!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load from Manyfold Modal -->
+    <div id="modal-load" class="modal-overlay">
+        <style>.file-item:hover { background: rgba(255,255,255,0.05); }</style>
+        <div class="modal" style="width: 500px;">
+            <div class="modal-title">Load Script from Manyfold</div>
+            <div class="modal-description">Browse your library for .py or .scad scripts to load into the editor.</div>
+            
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button id="btn-load-back" class="btn btn-secondary" style="padding: 4px 8px;" disabled>
+                    <span class="mdi mdi-arrow-left"></span> Back
+                </button>
+                <div id="load-path-display" style="flex: 1; padding: 6px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-mute); border-radius: 6px; font-family: monospace; font-size: 12px; display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">/</div>
+            </div>
+
+            <div id="load-file-list" style="max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.2); border: 1px solid var(--border-mute); border-radius: 6px; margin-bottom: 16px;">
+                <!-- Files populated dynamically -->
+            </div>
+
+            <div class="modal-footer">
+                <button id="btn-load-cancel" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- API & Key Settings Modal -->
+    <div id="modal-settings" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-title">API Key Settings</div>
+            <div class="modal-description">Enter API keys to enable commercial AI models. Keys are saved locally in your browser.</div>
+            
+            <!-- OpenAI Key -->
+            <div class="form-group">
+                <label class="form-label" for="input-key-openai">OpenAI API Key</label>
+                <input type="password" id="input-key-openai" class="form-input" placeholder="sk-...">
+            </div>
+
+            <!-- Anthropic Key -->
+            <div class="form-group">
+                <label class="form-label" for="input-key-anthropic">Anthropic API Key</label>
+                <input type="password" id="input-key-anthropic" class="form-input" placeholder="sk-ant-...">
+            </div>
+
+            <!-- Gemini Key -->
+            <div class="form-group">
+                <label class="form-label" for="input-key-gemini">Google Gemini API Key</label>
+                <input type="password" id="input-key-gemini" class="form-input" placeholder="AIzaSy...">
+            </div>
+
+            <div class="modal-footer">
+                <button id="btn-settings-cancel" class="btn btn-secondary">Cancel</button>
+                <button id="btn-settings-save" class="btn btn-primary">Save Keys</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toast-icon" class="mdi toast-icon"></span>
+        <span id="toast-message">Notification message here</span>
+    </div>
+
+    <!-- Script Application Logic -->
+    <script>
+        // Default template scripts
+        const templates = {
+            build123d: `import build123d as bd
+
+# Your build123d code here
+result = bd.Box(10, 10, 10)
+`,
+
+            openscad: `// Your OpenSCAD code here
+cube([10, 10, 10]);
+`,
+            cadquery: `import cadquery as cq
+
+# Your cadquery code here
+result = cq.Workplane("XY").box(10, 10, 10)
+`
+        };
+
+        // App State
+        let currentProvider = 'ollama';
+        let currentModel = 'qwen2.5:7b';
+        let serverKeys = { openai: false, anthropic: false, gemini: false };
+        let currentBase64 = null;
+        let editorInstance = null;
+        let renderer, scene, camera, orbitControls, currentMesh = null;
+        let gridHelper, axesHelper;
+        let rendererMode = 'solid'; // solid, wireframe
+
+        function loadModelSelection() {
+            const select = document.getElementById('model-select');
+            const savedVal = localStorage.getItem('studio_model_value') || 'ollama/qwen2.5:7b';
+            select.value = savedVal;
+            const parts = savedVal.split('/');
+            currentProvider = parts[0] || 'ollama';
+            currentModel = parts[1] || 'qwen2.5:7b';
+        }
+
+        // 3D Viewport Setup
+        function init3D() {
+            const container = document.getElementById('canvas-container');
+            const width = container.clientWidth || 1;
+            const height = container.clientHeight || 1;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x161c26); // Slightly lighter than panel to verify canvas exists
+
+            camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            camera.position.set(100, 100, 150);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+            orbitControls.enableDamping = true;
+            orbitControls.dampingFactor = 0.05;
+            orbitControls.target.set(0, 0, 0);
+            orbitControls.update();
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x222222);
+            scene.add(ambientLight);
+
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.4);
+            hemiLight.position.set(0, 200, 0);
+            scene.add(hemiLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(100, 200, 100);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            // Helpers
+            gridHelper = new THREE.GridHelper(200, 50, 0x00f2fe, 0x222830);
+            gridHelper.position.y = -0.5;
+            scene.add(gridHelper);
+
+            axesHelper = new THREE.AxesHelper(30);
+            scene.add(axesHelper);
+
+            const resizeObserver = new ResizeObserver(() => {
+                onWindowResize();
+            });
+            resizeObserver.observe(container);
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            orbitControls.update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            
+            // Debug: Show canvas size in the UI
+            const renderStat = document.getElementById('stats-render');
+            if (renderStat) renderStat.innerText = `${width}x${height} (${rendererMode})`;
+
+            if (width === 0 || height === 0) return;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        // Fit camera helper
+        function fitCameraToObject(object) {
+            const box = new THREE.Box3().setFromObject(object);
+            const center = new THREE.Box3().setFromObject(object).getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+            cameraZ *= 1.5; // Offset multiplier
+
+            camera.position.set(center.x + cameraZ * 0.7, center.y + cameraZ * 0.7, center.z + cameraZ);
+            
+            const minZ = box.min.z;
+            const cameraToExtent = cameraZ - minZ;
+            camera.far = cameraToExtent * 10;
+            camera.updateProjectionMatrix();
+
+            orbitControls.target.copy(center);
+            orbitControls.update();
+        }
+
+        // Load base64 STL mesh into scene
+        function loadSTLFromBase64(base64Data) {
+            if (currentMesh) {
+                scene.remove(currentMesh);
+            }
+
+            const binaryString = atob(base64Data);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            const loader = new THREE.STLLoader();
+            const geometry = loader.parse(bytes.buffer);
+
+            // Shading material
+            let material;
+            if (rendererMode === 'wireframe') {
+                material = new THREE.MeshBasicMaterial({
+                    color: 0x00f2fe,
+                    wireframe: true
+                });
+            } else {
+                material = new THREE.MeshPhongMaterial({
+                    color: 0x90a4ae,
+                    specular: 0x111111,
+                    shininess: 200,
+                    flatShading: true
+                });
+            }
+
+            currentMesh = new THREE.Mesh(geometry, material);
+            currentMesh.castShadow = true;
+            currentMesh.receiveShadow = true;
+            
+            // Fix CAD (Z-up) to Three.js (Y-up) coordinate system mismatch!
+            currentMesh.rotation.x = -Math.PI / 2;
+            
+            scene.add(currentMesh);
+            
+            const triangleCount = geometry.attributes.position.count / 3;
+            document.getElementById('stats-triangles').innerText = triangleCount.toLocaleString();
+            
+            fitCameraToObject(currentMesh);
+        }
+
+        // Toasts
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const text = document.getElementById('toast-message');
+
+            toast.className = `toast show ${type}`;
+            text.innerText = message;
+            
+            if (type === 'success') {
+                icon.className = 'mdi mdi-check-circle-outline toast-icon';
+            } else {
+                icon.className = 'mdi mdi-alert-circle-outline toast-icon';
+            }
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Monaco Editor Setup
+        function initMonaco() {
+            require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' } });
+            require(['vs/editor/editor.main'], function () {
+                const lastCode = localStorage.getItem('studio_last_code') || templates.build123d;
+                const lastLang = localStorage.getItem('studio_last_lang') || 'build123d';
+                
+                document.getElementById('lang-select').value = lastLang;
+                
+                editorInstance = monaco.editor.create(document.getElementById('editor'), {
+                    value: lastCode,
+                    language: lastLang === 'openscad' ? 'cpp' : 'python',
+                    theme: 'vs-dark',
+                    automaticLayout: true,
+                    minimap: { enabled: false },
+                    fontFamily: 'JetBrains Mono',
+                    fontSize: 13,
+                    lineNumbers: 'on',
+                    roundedSelection: false,
+                    scrollBeyondLastLine: false,
+                    readOnly: false
+                });
+
+                editorInstance.onDidChangeModelContent(() => {
+                    localStorage.setItem('studio_last_code', editorInstance.getValue());
+                });
+
+                document.getElementById('lang-select').addEventListener('change', (e) => {
+                    const lang = e.target.value;
+                    localStorage.setItem('studio_last_lang', lang);
+                    const model = monaco.editor.createModel(
+                        templates[lang], 
+                        lang === 'openscad' ? 'cpp' : 'python'
+                    );
+                    editorInstance.setModel(model);
+                    localStorage.setItem('studio_last_code', templates[lang]);
+                });
+            });
+        }
+
+        // App Logic & Actions
+        // --- Auth Logic ---
+        async function checkAuth() {
+            try {
+                const res = await fetch('/auth/status');
+                const data = await res.json();
+                if (data.enabled && !data.authenticated) {
+                    document.getElementById('auth-overlay').style.display = 'flex';
+                }
+            } catch (err) {
+                console.error("Auth check failed", err);
+            }
+        }
+        
+        document.getElementById('auth-submit').addEventListener('click', async () => {
+            const pwd = document.getElementById('auth-password').value;
+            const res = await fetch('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pwd })
+            });
+            if (res.ok) {
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('auth-error').style.display = 'none';
+            } else {
+                document.getElementById('auth-error').style.display = 'block';
+                // Shake animation
+                const box = document.getElementById('auth-password');
+                box.style.transform = 'translateX(5px)';
+                setTimeout(() => box.style.transform = 'translateX(-5px)', 100);
+                setTimeout(() => box.style.transform = 'translateX(0)', 200);
+            }
+        });
+        
+        document.getElementById('auth-password').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') document.getElementById('auth-submit').click();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            init3D();
+            initMonaco();
+
+            const loadingScreen = document.getElementById('loading');
+            const loadingText = document.getElementById('loading-text');
+            const consoleLogs = document.getElementById('console-logs');
+            const statusLabel = document.getElementById('status-label');
+            const btnSave = document.getElementById('btn-save');
+
+            // Welcome Modal & Printer Status Flow
+            const modalWelcome = document.getElementById('modal-welcome');
+            const btnWelcomeClose = document.getElementById('btn-welcome-close');
+            const printerStatusBadge = document.getElementById('printer-status-badge');
+            const printerStatusText = document.getElementById('printer-status-text');
+
+            async function checkPrinterStatus(isFirstLoad = false) {
+                try {
+                    const response = await fetch('/printer/status');
+                    const data = await response.json();
+
+                    printerStatusBadge.className = 'printer-status';
+                    if (!data.configured) {
+                        printerStatusBadge.classList.add('unconfigured');
+                        printerStatusText.innerText = 'Unconfigured';
+                        printerStatusBadge.title = 'Bambu Printer is unconfigured. Click to open setup guide.';
+                        
+                        // Show welcome modal on first load if never dismissed or if unconfigured
+                        if (isFirstLoad && !localStorage.getItem('ftue_shown')) {
+                            modalWelcome.classList.add('show');
+                        }
+                    } else if (data.online) {
+                        printerStatusBadge.classList.add('online');
+                        printerStatusText.innerText = 'Online';
+                        printerStatusBadge.title = `Bambu Printer is Online\nIP: ${data.ip}\nSerial: ${data.serial}`;
+                    } else {
+                        printerStatusBadge.classList.add('offline');
+                        printerStatusText.innerText = 'Offline';
+                        printerStatusBadge.title = `Bambu Printer is Offline/Unreachable\nIP: ${data.ip}`;
+                    }
+                } catch (err) {
+                    console.error('Failed to get printer status:', err);
+                    printerStatusBadge.className = 'printer-status offline';
+                    printerStatusText.innerText = 'Error';
+                }
+            }
+
+            // Click badge to view setup guide / status
+            printerStatusBadge.addEventListener('click', () => {
+                modalWelcome.classList.add('show');
+            });
+
+            btnWelcomeClose.addEventListener('click', () => {
+                modalWelcome.classList.remove('show');
+                localStorage.setItem('ftue_shown', 'true');
+            });
+
+            // Initial status check
+            checkPrinterStatus(true);
+
+            // Load server-side AI keys status
+            async function loadAIStatus() {
+                try {
+                    const resp = await fetch('/ai/status');
+                    serverKeys = await resp.json();
+                } catch (e) {
+                    console.error('Failed to get server AI status:', e);
+                }
+                loadModelSelection();
+            }
+            loadAIStatus();
+
+            // Header controls
+            document.getElementById('model-select').addEventListener('change', (e) => {
+                const val = e.target.value;
+                localStorage.setItem('studio_model_value', val);
+                const parts = val.split('/');
+                currentProvider = parts[0] || 'ollama';
+                currentModel = parts[1] || 'qwen2.5:7b';
+
+                // If they selected a commercial model and don't have a key, prompt settings open
+                if (currentProvider !== 'ollama') {
+                    const localKey = localStorage.getItem(`studio_key_${currentProvider}`);
+                    const hasServerKey = serverKeys[currentProvider];
+                    if (!localKey && !hasServerKey) {
+                        showToast(`No API key found for ${currentProvider}. Opening settings.`, 'error');
+                        document.getElementById('menu-ai-settings').click();
+                    }
+                }
+            });
+
+            // Toggle rendering modes
+            document.getElementById('btn-view-wireframe').addEventListener('click', () => {
+                rendererMode = 'wireframe';
+                document.getElementById('btn-view-wireframe').classList.add('active');
+                document.getElementById('btn-view-solid').classList.remove('active');
+                document.getElementById('stats-render').innerText = 'Wireframe';
+                if (currentMesh) {
+                    currentMesh.material = new THREE.MeshBasicMaterial({ color: 0x00f2fe, wireframe: true });
+                }
+            });
+
+            document.getElementById('btn-view-solid').addEventListener('click', () => {
+                rendererMode = 'solid';
+                document.getElementById('btn-view-solid').classList.add('active');
+                document.getElementById('btn-view-wireframe').classList.remove('active');
+                document.getElementById('stats-render').innerText = 'Solid';
+                if (currentMesh) {
+                    currentMesh.material = new THREE.MeshPhongMaterial({
+                        color: 0x90a4ae,
+                        specular: 0x111111,
+                        shininess: 200,
+                        flatShading: true
+                    });
+                }
+            });
+
+            document.getElementById('btn-reset-view').addEventListener('click', () => {
+                if (currentMesh) {
+                    fitCameraToObject(currentMesh);
+                } else {
+                    camera.position.set(100, 100, 150);
+                    orbitControls.target.set(0, 0, 0);
+                    orbitControls.update();
+                }
+            });
+
+            // Execute script
+            document.getElementById('btn-run').addEventListener('click', async () => {
+                if (!editorInstance) return;
+
+                const code = editorInstance.getValue();
+                const lang = document.getElementById('lang-select').value;
+                
+                loadingText.innerText = "Compiling CAD Script...";
+                loadingScreen.classList.add('show');
+                consoleLogs.classList.remove('show');
+                statusLabel.innerText = "Compiling...";
+
+                try {
+                    const endpoint = `/${lang}/execute`;
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ script: code, output_format: 'stl' })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success && data.file_base64) {
+                        currentBase64 = data.file_base64;
+                        window.hasUnsavedChanges = true;
+                        loadSTLFromBase64(currentBase64);
+                        statusLabel.innerText = "Model Generated";
+                        btnSave.disabled = false;
+                        document.getElementById('btn-print').disabled = false;
+                        showToast("Model successfully compiled and rendered!");
+                    } else {
+                        throw new Error(data.error || "Compilation failed");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    statusLabel.innerText = "Compile Error";
+                    consoleLogs.innerText = err.message;
+                    consoleLogs.classList.add('show');
+                    showToast("Compile Error: See logs on screen.", "error");
+                } finally {
+                    loadingScreen.classList.remove('show');
+                }
+            });
+
+            // Send to Printer
+            const btnPrint = document.getElementById('btn-print');
+            window.lastSavedFilename = null;
+            window.lastSavedSubfolder = "";
+            window.hasUnsavedChanges = false;
+
+            async function saveToLibrary(filename, subfolder) {
+                if (!currentBase64) return;
+                
+                // Force .stl extension for the mesh file
+                let stlFilename = filename;
+                if (!stlFilename.toLowerCase().endsWith('.stl')) {
+                    stlFilename += '.stl';
+                }
+                
+                // Determine script extension based on selected language
+                const lang = document.getElementById('lang-select').value;
+                const ext = (lang === 'openscad') ? '.scad' : '.py';
+                let scriptFilename = stlFilename.replace('.stl', ext);
+                
+                // Manyfold ignores loose files in the library root. Force a subfolder.
+                let targetSubfolder = subfolder;
+                if (!targetSubfolder || targetSubfolder.trim() === '') {
+                    targetSubfolder = stlFilename.replace('.stl', '');
+                }
+
+                loadingText.innerText = "Saving to Manyfold...";
+                loadingScreen.classList.add('show');
+                
+                try {
+                    // Save the STL mesh
+                    const responseStl = await fetch('/files/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            file_base64: currentBase64,
+                            filename: stlFilename,
+                            subfolder: targetSubfolder
+                        })
+                    });
+                    const dataStl = await responseStl.json();
+                    
+                    // Save the CAD Script text as a secondary file
+                    const scriptCode = editorInstance ? editorInstance.getValue() : "";
+                    const scriptBase64 = btoa(unescape(encodeURIComponent(scriptCode)));
+                    await fetch('/files/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            file_base64: scriptBase64,
+                            filename: scriptFilename,
+                            subfolder: targetSubfolder
+                        })
+                    });
+
+                    if (dataStl.success) {
+                        showToast(`Successfully saved ${stlFilename} to library!`);
+                        window.lastSavedFilename = stlFilename;
+                        window.lastSavedSubfolder = targetSubfolder;
+                        window.hasUnsavedChanges = false;
+                    } else {
+                        throw new Error(dataStl.error || "Failed to save file");
+                    }
+                } catch (err) {
+                    showToast(err.message, "error");
+                } finally {
+                    loadingScreen.classList.remove('show');
+                }
+            }
+
+            btnPrint.addEventListener('click', async () => {
+                if (!currentBase64) return;
+
+                const filename = `print_${Date.now()}.stl`;
+                const filament = document.getElementById('select-filament').value;
+                const printerModel = document.getElementById('select-printer').value;
+                const nozzleTemp = parseInt(document.getElementById('input-nozzle-temp').value) || 220;
+                const bedTemp = parseInt(document.getElementById('input-bed-temp').value) || 45;
+                const perimeters = parseInt(document.getElementById('input-perimeters').value) || 3;
+                const plateType = document.getElementById('select-plate').value;
+                let amsSlot = parseInt(document.getElementById('select-ams').value, 10);
+                if (isNaN(amsSlot)) amsSlot = -1;
+
+                loadingText.innerText = "Sending Print Job...";
+                loadingScreen.classList.add('show');
+                statusLabel.innerText = "Printing...";
+
+                try {
+                    const response = await fetch('/printer/print', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            file_base64: currentBase64,
+                            filename: filename,
+                            printer_model: printerModel,
+                            filament: filament,
+                            nozzle_temp: nozzleTemp,
+                            bed_temp: bedTemp,
+                            perimeters: perimeters,
+                            ams_slot: amsSlot,
+                            plate_type: plateType
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        showToast(data.message);
+                        statusLabel.innerText = "Print Sent";
+                        
+                        // Auto-save logic
+                        if (window.hasUnsavedChanges) {
+                            if (window.lastSavedFilename) {
+                                const overwrite = confirm("You just printed an iterated version of a saved file.\\n\\nDo you want to OVERWRITE the existing file '" + window.lastSavedFilename + "' in your library?\\n\\n(Click 'Cancel' to save as a new separate file)");
+                                if (overwrite) {
+                                    await saveToLibrary(window.lastSavedFilename, window.lastSavedSubfolder);
+                                } else {
+                                    document.getElementById('input-filename').value = window.lastSavedFilename.replace(".stl", "_v2.stl");
+                                    document.getElementById('input-subfolder').value = window.lastSavedSubfolder;
+                                    document.getElementById('modal-save').classList.add('show');
+                                }
+                            } else {
+                                const saveNow = confirm("Print sent successfully! Would you like to save this new model to your Manyfold library?");
+                                if (saveNow) {
+                                    const timestamp = new Date().toISOString().slice(2,10).replace(/-/g,'');
+                                    document.getElementById('input-filename').value = `part_${timestamp}.stl`;
+                                    document.getElementById('modal-save').classList.add('show');
+                                }
+                            }
+                        }
+                    } else {
+                        throw new Error(data.error || "Failed to trigger print");
+                    }
+                } catch (err) {
+                    showToast(err.message, "error");
+                    statusLabel.innerText = "Print Failed";
+                } finally {
+                    loadingScreen.classList.remove('show');
+                }
+            });
+
+            // Cancel Print
+            const btnCancelPrint = document.getElementById('btn-cancel-print');
+            btnCancelPrint.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to cancel the active print job?')) {
+                    try {
+                        const response = await fetch('/printer/cancel', {
+                            method: 'POST'
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            showToast("Print cancelled successfully.");
+                        } else {
+                            showToast("Error cancelling print: " + data.error, "error");
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        showToast("Failed to communicate with printer.", "error");
+                    }
+                }
+            });
+
+            // Profiles Flow
+            const modalProfiles = document.getElementById('modal-profiles');
+            const selectProfilePrinter = document.getElementById('select-profile-printer');
+            const inputProfileEditor = document.getElementById('input-profile-editor');
+            const btnProfileCancel = document.getElementById('btn-profile-cancel');
+            const btnProfileReset = document.getElementById('btn-profile-reset');
+            const btnProfileSave = document.getElementById('btn-profile-save');
+            const profileStatus = document.getElementById('profile-status');
+
+            async function loadProfile(printerModel) {
+                profileStatus.innerText = "Loading...";
+                try {
+                    const response = await fetch(`/printer/profiles/load?printer_model=${printerModel}`);
+                    const data = await response.json();
+                    if (data.success) {
+                        inputProfileEditor.value = data.content;
+                        if (data.is_custom) {
+                            profileStatus.innerText = "Editing: Custom User Profile";
+                            profileStatus.style.color = "#4db6ac";
+                            btnProfileReset.style.display = "block";
+                        } else {
+                            profileStatus.innerText = "Editing: Factory Default Profile";
+                            profileStatus.style.color = "#ffb74d";
+                            btnProfileReset.style.display = "none";
+                        }
+                    } else {
+                        profileStatus.innerText = "Error loading profile.";
+                    }
+                } catch (e) {
+                    profileStatus.innerText = "Failed to load.";
+                }
+            }
+
+            document.getElementById('menu-slicer-settings').addEventListener('click', () => {
+                const settingsMenu = document.getElementById('settings-menu');
+                settingsMenu.classList.remove('show');
+                settingsMenu.style.display = 'none';
+                const currentPrinter = document.getElementById('select-printer').value;
+                selectProfilePrinter.value = currentPrinter;
+                modalProfiles.classList.add('show');
+                loadProfile(currentPrinter);
+            });
+
+            selectProfilePrinter.addEventListener('change', (e) => {
+                loadProfile(e.target.value);
+            });
+
+            btnProfileCancel.addEventListener('click', () => {
+                modalProfiles.classList.remove('show');
+            });
+
+            btnProfileSave.addEventListener('click', async () => {
+                const printerModel = selectProfilePrinter.value;
+                const content = inputProfileEditor.value;
+                try {
+                    const response = await fetch('/printer/profiles/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ printer_model: printerModel, ini_content: content })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        showToast(data.message);
+                        loadProfile(printerModel);
+                    } else {
+                        showToast(data.error, "error");
+                    }
+                } catch (e) {
+                    showToast("Failed to save profile.", "error");
+                }
+            });
+
+            btnProfileReset.addEventListener('click', async () => {
+                if (!confirm("Are you sure you want to delete your custom overrides and reset this printer to its factory default settings?")) return;
+                const printerModel = selectProfilePrinter.value;
+                try {
+                    const response = await fetch('/printer/profiles/reset', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ printer_model: printerModel })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        showToast(data.message);
+                        loadProfile(printerModel);
+                    } else {
+                        showToast(data.error, "error");
+                    }
+                } catch (e) {
+                    showToast("Failed to reset profile.", "error");
+                }
+            });
+
+            // Save Model flow
+            const modalSave = document.getElementById('modal-save');
+            
+            btnSave.addEventListener('click', () => {
+                if (window.lastSavedFilename) {
+                    document.getElementById('input-filename').value = window.lastSavedFilename;
+                    document.getElementById('input-subfolder').value = window.lastSavedSubfolder;
+                } else {
+                    const timestamp = new Date().toISOString().slice(2,10).replace(/-/g,'');
+                    document.getElementById('input-filename').value = `part_${timestamp}.stl`;
+                }
+                modalSave.classList.add('show');
+            });
+
+            document.getElementById('btn-modal-cancel').addEventListener('click', () => {
+                modalSave.classList.remove('show');
+            });
+
+            document.getElementById('btn-modal-confirm').addEventListener('click', async () => {
+                const filename = document.getElementById('input-filename').value;
+                const subfolder = document.getElementById('input-subfolder').value;
+                modalSave.classList.remove('show');
+                await saveToLibrary(filename, subfolder);
+            });
+
+            // Load Model flow
+            const modalLoad = document.getElementById('modal-load');
+            const loadFileList = document.getElementById('load-file-list');
+            const loadPathDisplay = document.getElementById('load-path-display');
+            const btnLoadBack = document.getElementById('btn-load-back');
+            let currentLoadPath = "";
+
+            document.getElementById('btn-load-design').addEventListener('click', () => {
+                modalLoad.classList.add('show');
+                fetchFileList("");
+            });
+
+            document.getElementById('btn-load-cancel').addEventListener('click', () => {
+                modalLoad.classList.remove('show');
+            });
+
+            btnLoadBack.addEventListener('click', () => {
+                if (!currentLoadPath) return;
+                const parts = currentLoadPath.split('/');
+                parts.pop();
+                fetchFileList(parts.join('/'));
+            });
+
+            async function fetchFileList(subfolder) {
+                currentLoadPath = subfolder;
+                loadPathDisplay.innerText = '/' + subfolder;
+                btnLoadBack.disabled = !subfolder;
+                
+                try {
+                    loadFileList.innerHTML = '<div style="padding:12px; text-align:center;">Loading...</div>';
+                    const response = await fetch('/files/list?subfolder=' + encodeURIComponent(subfolder));
+                    const data = await response.json();
+                    
+                    if (!data.success) throw new Error(data.error);
+                    
+                    let html = '';
+                    if (data.files.length === 0) {
+                        html = '<div style="padding:12px; text-align:center; color: var(--text-mute);">No files found</div>';
+                    } else {
+                        // Sort directories first
+                        data.files.sort((a, b) => {
+                            if (a.type !== b.type) return a.type === 'directory' ? -1 : 1;
+                            return a.name.localeCompare(b.name);
+                        });
+
+                        for (const file of data.files) {
+                            if (file.type === 'directory') {
+                                html += `<div class="file-item" style="padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border-mute); display: flex; align-items: center; gap: 8px;" onclick="fetchFileList('${subfolder ? subfolder + '/' : ''}${file.name}')">
+                                    <span class="mdi mdi-folder" style="color: #ecc94b; font-size: 16px;"></span>
+                                    <span>${file.name}</span>
+                                </div>`;
+                            } else {
+                                const ext = file.name.split('.').pop().toLowerCase();
+                                const isScript = ext === 'scad' || ext === 'py';
+                                if (isScript) {
+                                    html += `<div class="file-item" style="padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border-mute); display: flex; align-items: center; gap: 8px;" onclick="loadFileContent('${subfolder ? subfolder + '/' : ''}${file.name}', '${ext}')">
+                                        <span class="mdi mdi-file-document-outline" style="color: var(--accent); font-size: 16px;"></span>
+                                        <span>${file.name}</span>
+                                    </div>`;
+                                } else {
+                                    html += `<div class="file-item" style="padding: 8px 12px; border-bottom: 1px solid var(--border-mute); display: flex; align-items: center; gap: 8px; opacity: 0.5;">
+                                        <span class="mdi mdi-file-outline" style="font-size: 16px;"></span>
+                                        <span>${file.name}</span>
+                                    </div>`;
+                                }
+                            }
+                        }
+                    }
+                    loadFileList.innerHTML = html;
+                } catch (err) {
+                    loadFileList.innerHTML = `<div style="padding:12px; color: var(--error);">${err.message}</div>`;
+                }
+            }
+
+            window.fetchFileList = fetchFileList;
+
+            window.loadFileContent = async function(filepath, ext) {
+                loadingText.innerText = "Loading File...";
+                loadingScreen.classList.add('show');
+                modalLoad.classList.remove('show');
+                try {
+                    const response = await fetch('/files/read?filepath=' + encodeURIComponent(filepath) + '&_t=' + Date.now());
+                    const data = await response.json();
+                    if (!data.success) throw new Error(data.error);
+                    
+                    // Switch language dropdown to match file
+                    const langSelect = document.getElementById('lang-select');
+                    if (ext === 'scad') {
+                        langSelect.value = 'openscad';
+                    } else if (ext === 'py') {
+                        if (data.content.includes('build123d')) langSelect.value = 'build123d';
+                        else langSelect.value = 'cadquery';
+                    }
+                    langSelect.dispatchEvent(new Event('change'));
+                    
+                    editorInstance.setValue(data.content);
+                    showToast(`Loaded ${filepath.split('/').pop()}`);
+                    
+                    // Automatically run the script to render the preview
+                    document.getElementById('btn-run').click();
+                } catch (err) {
+                    showToast(err.message, "error");
+                } finally {
+                    loadingScreen.classList.remove('show');
+                }
+            };
+
+            // Settings Dropdown Flow
+            const btnSettingsDropdown = document.getElementById('btn-settings-dropdown');
+            const settingsMenu = document.getElementById('settings-menu');
+            
+            btnSettingsDropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+                settingsMenu.classList.toggle('show');
+                settingsMenu.style.display = settingsMenu.classList.contains('show') ? 'block' : 'none';
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!settingsMenu.contains(e.target) && e.target !== btnSettingsDropdown) {
+                    settingsMenu.classList.remove('show');
+                    settingsMenu.style.display = 'none';
+                }
+            });
+
+            // Settings Modal Flow
+            const modalSettings = document.getElementById('modal-settings');
+
+            document.getElementById('menu-ai-settings').addEventListener('click', async () => {
+                settingsMenu.classList.remove('show');
+                settingsMenu.style.display = 'none';
+                // Load saved inputs from localStorage
+                document.getElementById('input-key-anthropic').value = localStorage.getItem('studio_key_anthropic') || '';
+                document.getElementById('input-key-gemini').value = localStorage.getItem('studio_key_gemini') || '';
+                document.getElementById('input-key-openai').value = localStorage.getItem('studio_key_openai') || '';
+                
+                // Query server configuration
+                try {
+                    const resp = await fetch('/ai/status');
+                    const status = await resp.json();
+                    
+                    document.getElementById('input-key-openai').placeholder = status.openai ? '•••••••• (Using Server Key)' : 'sk-...';
+                    document.getElementById('input-key-anthropic').placeholder = status.anthropic ? '•••••••• (Using Server Key)' : 'sk-ant-...';
+                    document.getElementById('input-key-gemini').placeholder = status.gemini ? '•••••••• (Using Server Key)' : 'AIzaSy...';
+                } catch (e) {
+                    console.error('Failed to get AI status:', e);
+                }
+
+                modalSettings.classList.add('show');
+            });
+
+            document.getElementById('btn-settings-cancel').addEventListener('click', () => {
+                modalSettings.classList.remove('show');
+            });
+
+            document.getElementById('btn-settings-save').addEventListener('click', () => {
+                const openaiVal = document.getElementById('input-key-openai').value.trim();
+                const anthropicVal = document.getElementById('input-key-anthropic').value.trim();
+                const geminiVal = document.getElementById('input-key-gemini').value.trim();
+
+                // Save or clear key from localStorage
+                if (openaiVal) {
+                    localStorage.setItem('studio_key_openai', openaiVal);
+                } else {
+                    localStorage.removeItem('studio_key_openai');
+                }
+                
+                if (anthropicVal) {
+                    localStorage.setItem('studio_key_anthropic', anthropicVal);
+                } else {
+                    localStorage.removeItem('studio_key_anthropic');
+                }
+                
+                if (geminiVal) {
+                    localStorage.setItem('studio_key_gemini', geminiVal);
+                } else {
+                    localStorage.removeItem('studio_key_gemini');
+                }
+
+                modalSettings.classList.remove('show');
+                showToast("API keys successfully saved!");
+            });
+
+            // Clear editor
+            document.getElementById('btn-clear').addEventListener('click', () => {
+                if (editorInstance) {
+                    editorInstance.setValue('');
+                }
+            });
+
+            // Print modal plate logic
+            document.getElementById('select-plate').addEventListener('change', (e) => {
+                const bedInput = document.getElementById('input-bed-temp');
+                if (e.target.value === 'cool') {
+                    bedInput.value = 35;
+                } else {
+                    bedInput.value = 65;
+                }
+            });
+
+            // Chat section
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const btnSendChat = document.getElementById('btn-send-chat');
+
+            function addChatMessage(content, sender = 'assistant') {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `message ${sender}`;
+                
+                let html = `<div class="message-bubble">`;
+                
+                if (sender === 'assistant') {
+                    // Extract code blocks and add a load button
+                    const codeBlockRegex = /```(?:python|openscad|javascript)?([\s\S]*?)```/g;
+                    let lastIndex = 0;
+                    let match;
+                    let text = '';
+                    
+                    while ((match = codeBlockRegex.exec(content)) !== null) {
+                        text += content.substring(lastIndex, match.index);
+                        const code = match[1].trim();
+                        text += `<pre><code>${escapeHtml(code)}</code></pre>`;
+                        text += `<div class="code-actions"><button class="btn-use-code" onclick="loadCodeIntoEditor(\`${encodeURIComponent(code)}\`)"><span class="mdi mdi-import"></span> Load Code</button></div>`;
+                        lastIndex = codeBlockRegex.lastIndex;
+                        
+                        // Auto-load the very first code block we find into the editor!
+                        if (!window._didAutoLoad) {
+                            setTimeout(() => loadCodeIntoEditor(encodeURIComponent(code)), 100);
+                            window._didAutoLoad = true;
+                        }
+                    }
+                    text += content.substring(lastIndex);
+                    window._didAutoLoad = false; // reset for next message
+                    html += text.replace(/\n/g, '<br>');
+                } else {
+                    html += escapeHtml(content).replace(/\n/g, '<br>');
+                }
+                
+                html += `</div><span class="message-sender">${sender === 'assistant' ? 'AI Assistant' : 'You'}</span>`;
+                msgDiv.innerHTML = html;
+                
+                chatMessages.appendChild(msgDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            let chatHistory = [];
+
+            async function handleSendMessage() {
+                const text = chatInput.value.trim();
+                if (!text) return;
+
+                addChatMessage(text, 'user');
+                chatInput.value = '';
+
+                // Add to history
+                const lang = document.getElementById('lang-select').value;
+                if (chatHistory.length === 0) {
+                    chatHistory.push({ role: 'user', content: `Language selected: ${lang}. Task: ${text}` });
+                } else {
+                    chatHistory.push({ role: 'user', content: text });
+                }
+
+                // Add simulated thinking bubble
+                const thinkingDiv = document.createElement('div');
+                thinkingDiv.className = 'message assistant';
+                thinkingDiv.innerHTML = `<div class="message-bubble"><span class="mdi mdi-loading mdi-spin"></span> AI is thinking...</div>`;
+                chatMessages.appendChild(thinkingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                const apiKey = localStorage.getItem(`studio_key_${currentProvider}`) || '';
+
+                try {
+                    const response = await fetch('/ai/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            messages: chatHistory,
+                            provider: currentProvider,
+                            model: currentModel,
+                            api_key: apiKey
+                        })
+                    });
+
+                    const data = await response.json();
+                    thinkingDiv.remove();
+
+                    if (data.success && data.message) {
+                        chatHistory.push({ role: 'assistant', content: data.message });
+                        addChatMessage(data.message, 'assistant');
+                    } else {
+                        throw new Error(data.error || "Failed to generate AI response");
+                    }
+                } catch (err) {
+                    thinkingDiv.remove();
+                    addChatMessage(`Error calling AI endpoint: ${err.message}`, 'assistant');
+                }
+            }
+
+            btnSendChat.addEventListener('click', handleSendMessage);
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    handleSendMessage();
+                }
+            });
+        });
+
+        // Helper load code
+        function loadCodeIntoEditor(encodedCode) {
+            const code = decodeURIComponent(encodedCode);
+            if (editorInstance) {
+                editorInstance.setValue(code);
+                showToast("Code loaded into script editor!");
+            }
+        }
+
+        // Helper escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+    </script>
+</body>
+</html>

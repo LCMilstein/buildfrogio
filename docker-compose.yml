@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  3d-workshop:
+    build: .
+    image: lcmilstein/3d-workshop:latest
+    container_name: 3d-workshop
+    restart: unless-stopped
+    ports:
+      - "3215:3215"
+    volumes:
+      # Mount directory for models
+      - ${HOST_MODELS_DIR:-./models}:/models
+    env_file:
+      - .env
+    environment:
+      - WORKSHOP_PORT=3215
+      - MODELS_DIR=/models
+      - SKIP_TEST_PRINT=${SKIP_TEST_PRINT:-true}
+      - BAMBU_PRINTER_IP=${BAMBU_PRINTER_IP:-}
+      - BAMBU_PRINTER_SERIAL=${BAMBU_PRINTER_SERIAL:-}
+      - BAMBU_PRINTER_ACCESS_CODE=${BAMBU_PRINTER_ACCESS_CODE:-}
+      - OLLAMA_URL=${OLLAMA_URL:-http://localhost:11434}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - WORKSHOP_PASSWORD=${WORKSHOP_PASSWORD:-}

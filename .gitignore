@@ -1,0 +1,21 @@
+# Local Credentials
+.env
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Temporary 3D Print assets
+*.stl
+*.gcode
+*.3mf
+temp_stl/
+temp_gcode/
+temp_3mf/
+
+# OS files
+.DS_Store
+Thumbs.db
+node_modules/

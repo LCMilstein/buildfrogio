@@ -1,0 +1,11 @@
+fastapi>=0.115.0
+uvicorn>=0.30.0
+cadquery>=2.4.0
+trimesh[easy]>=4.4.0
+numpy>=1.26.0
+manifold3d>=2.5.0
+build123d
+httpx
+paho-mqtt
+
+

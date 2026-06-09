@@ -27,6 +27,9 @@
     --transition: all 0.25s ease;
     --radius: 10px;
     --radius-sm: 6px;
+    --glow-teal: 0 0 6px #6ECEB2, 0 0 14px rgba(110, 206, 178, 0.7), 0 0 30px rgba(110, 206, 178, 0.35);
+    --glow-teal-text: 0 0 6px #6ECEB2, 0 0 14px rgba(110, 206, 178, 0.8), 0 0 28px rgba(110, 206, 178, 0.4);
+    --glow-teal-border: 0 0 8px rgba(110, 206, 178, 0.6), 0 0 20px rgba(110, 206, 178, 0.3);
 }
 
 html {
@@ -85,8 +88,13 @@ body {
     line-height: 1;
 }
 
+.logo img {
+    filter: drop-shadow(0 0 4px #6ECEB2) drop-shadow(0 0 10px rgba(110, 206, 178, 0.6)) drop-shadow(0 0 20px rgba(110, 206, 178, 0.3));
+}
+
 .logo-accent {
     color: var(--amber);
+    text-shadow: var(--glow-teal-text);
 }
 
 .nav-links {
@@ -200,7 +208,7 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(110, 206, 178, 0.1);
+    background: rgba(110, 206, 178, 0.08);
     border: 1px solid var(--border-amber);
     color: var(--amber);
     font-size: 0.8rem;
@@ -209,6 +217,8 @@ body {
     text-transform: uppercase;
     padding: 0.35rem 0.85rem;
     border-radius: 100px;
+    box-shadow: var(--glow-teal-border);
+    text-shadow: var(--glow-teal-text);
     width: fit-content;
 }
 
@@ -227,6 +237,7 @@ body {
     height: 4px;
     background: var(--amber);
     margin-top: 1rem;
+    box-shadow: var(--glow-teal);
     border-radius: 2px;
 }
 
@@ -305,6 +316,7 @@ body {
     color: var(--amber);
     font-style: italic;
     margin-bottom: 0.5rem;
+    text-shadow: var(--glow-teal-text);
 }
 
 .brand-strip-sub {

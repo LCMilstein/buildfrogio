@@ -27,9 +27,9 @@
     --transition: all 0.25s ease;
     --radius: 10px;
     --radius-sm: 6px;
-    --glow-teal: 0 0 6px #6ECEB2, 0 0 14px rgba(110, 206, 178, 0.7), 0 0 30px rgba(110, 206, 178, 0.35);
-    --glow-teal-text: 0 0 6px #6ECEB2, 0 0 14px rgba(110, 206, 178, 0.8), 0 0 28px rgba(110, 206, 178, 0.4);
-    --glow-teal-border: 0 0 8px rgba(110, 206, 178, 0.6), 0 0 20px rgba(110, 206, 178, 0.3);
+    --glow-teal: 0 0 4px rgba(110, 206, 178, 0.5), 0 0 12px rgba(110, 206, 178, 0.25);
+    --glow-teal-text: 0 0 8px rgba(110, 206, 178, 0.5), 0 0 16px rgba(110, 206, 178, 0.2);
+    --glow-teal-border: 0 0 6px rgba(110, 206, 178, 0.3), 0 0 14px rgba(110, 206, 178, 0.15);
 }
 
 html {
@@ -89,7 +89,7 @@ body {
 }
 
 .logo img {
-    filter: drop-shadow(0 0 4px #6ECEB2) drop-shadow(0 0 10px rgba(110, 206, 178, 0.6)) drop-shadow(0 0 20px rgba(110, 206, 178, 0.3));
+    filter: drop-shadow(0 0 3px rgba(110, 206, 178, 0.6)) drop-shadow(0 0 8px rgba(110, 206, 178, 0.25));
 }
 
 .logo-accent {

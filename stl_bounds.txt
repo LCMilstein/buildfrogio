@@ -1,0 +1,68 @@
+Smashing_Fyyran.stl: dx=55.0, dy=127.0, dz=102.0 | Path: /srv/media/manyfold/models/custom-design/tinkercad/smashing-fyyran#71/Smashing_Fyyran.stl
+Glasses_Holder.stl: dx=40.0, dy=30.0, dz=29.5 | Path: /srv/media/manyfold/models/holder/glasses/simple/glasses-holder-simple#93/Glasses_Holder.stl
+USB_SD_Holder.stl: dx=150.0, dy=40.0, dz=20.0 | Path: /srv/media/manyfold/models/holder/organizer/sd-card/usb/usb-and-sd-card-holder-organizer#105/USB_SD_Holder.stl
+CR2477_Battery_Holder.stl: dx=29.0, dy=113.1, dz=23.0 | Path: /srv/media/manyfold/models/holder/battery/cr2477/cr2477-battery-holder#40/CR2477_Battery_Holder.stl
+BugattiBolideWallMount.stl: dx=40.0, dy=28.0, dz=38.3 | Path: /srv/media/manyfold/models/wall-mount/bolide/bugatti/decorative/bugatti-bolide-wall-mount#86/BugattiBolideWallMount.stl
+Sunglass_Wall_Mount_-_Cap.stl: dx=20.0, dy=24.9, dz=10.0 | Path: /srv/media/manyfold/models/wall-mount/glasses/sunglasses/expandable/expandable-sunglasses-wall-mount#91/Sunglass_Wall_Mount_-_Cap.stl
+Sunglass_Wall_Mount_-_Main.stl: dx=20.0, dy=67.4, dz=74.7 | Path: /srv/media/manyfold/models/wall-mount/glasses/sunglasses/expandable/expandable-sunglasses-wall-mount#91/Sunglass_Wall_Mount_-_Main.stl
+Sunglass_Wall_Mount_-_Peg.stl: dx=13.2, dy=10.6, dz=6.6 | Path: /srv/media/manyfold/models/wall-mount/glasses/sunglasses/expandable/expandable-sunglasses-wall-mount#91/Sunglass_Wall_Mount_-_Peg.stl
+Xbox_One_Conroller_Mount.stl: dx=95.2, dy=49.8, dz=35.0 | Path: /srv/media/manyfold/models/wall-mount/controller/gaming/xbox/xbox-one-controller-wall-mount#108/Xbox_One_Conroller_Mount.stl
+ps4_Controller_Holder.stl: dx=75.1, dy=60.0, dz=40.6 | Path: /srv/media/manyfold/models/wall-mount/controller/gaming/ps4/ps4-controller-wall-mount#98/ps4_Controller_Holder.stl
+IrwinStripperHolder.stl: dx=107.4, dy=26.0, dz=50.0 | Path: /srv/media/manyfold/models/wall-mount/tool/irwin/wire-stripper/irwin-wire-stripper-wall-mount#96/IrwinStripperHolder.stl
+Irwin_Vise-grip_wire_strippers_v1.stl: dx=49.0, dy=34.2, dz=31.9 | Path: /srv/media/manyfold/models/wall-mount/tool/irwin/wire-stripper/irwin-wire-stripper-wall-mount#96/Irwin_Vise-grip_wire_strippers_v1.stl
+LeftFlat.stl: dx=13.7, dy=16.6, dz=56.7 | Path: /srv/media/manyfold/models/wall-mount/tool/irwin/wire-stripper/irwin-wire-stripper-wall-mount#96/LeftFlat.stl
+RightFlat.stl: dx=13.7, dy=16.6, dz=56.7 | Path: /srv/media/manyfold/models/wall-mount/tool/irwin/wire-stripper/irwin-wire-stripper-wall-mount#96/RightFlat.stl
+viceGripStrippersMount.stl: dx=47.5, dy=61.0, dz=24.9 | Path: /srv/media/manyfold/models/wall-mount/tool/irwin/wire-stripper/irwin-wire-stripper-wall-mount#96/viceGripStrippersMount.stl
+Pixel_Watch_2_Mount_-_Wall_Mount.stl: dx=6.0, dy=60.0, dz=46.5 | Path: /srv/media/manyfold/models/wall-mount/charger/google/pixel-watch/pixel-watch-2-wall-mount#102/Pixel_Watch_2_Mount_-_Wall_Mount.stl
+Pixel_Watch_2_Mount_-_Watch_Mount.stl: dx=51.1, dy=34.0, dz=24.0 | Path: /srv/media/manyfold/models/wall-mount/charger/google/pixel-watch/pixel-watch-2-wall-mount#102/Pixel_Watch_2_Mount_-_Watch_Mount.stl
+KVM_Cradle_Tray.stl: dx=85.0, dy=54.0, dz=104.5 | Path: /srv/media/manyfold/models/cradle/kvm/tech/tray/kvm-cradle-tray#58/KVM_Cradle_Tray.stl
+AirPods_Plate.stl: dx=82.6, dy=67.2, dz=13.0 | Path: /srv/media/manyfold/models/apple/airpods/plate/airpods-plate#31/AirPods_Plate.stl
+obj_1_Body1.stl: dx=71.9, dy=71.9, dz=18.0 | Path: /srv/media/manyfold/models/apple/airpods/charging/airpods-pro-3-charging-station-profile-stls#14/obj_1_Body1.stl
+FP2_Corner_Bracket.stl: dx=50.8, dy=34.3, dz=50.8 | Path: /srv/media/manyfold/models/smart-home/aqara/corner-mount/presence/fp2/aqara-fp2-corner-bracket#85/FP2_Corner_Bracket.stl
+fp300_mount.stl: dx=31.0, dy=31.0, dz=17.0 | Path: /srv/media/manyfold/models/smart-home/aqara/recessed-mount/fp300/aqara-fp300-recessed-ceiling-mount/fp300_mount.stl
+Aqara FP300 Recessed Mount.stl: dx=34.5, dy=34.5, dz=17.0 | Path: /srv/media/manyfold/models/smart-home/aqara/recessed-mount/fp300/aqara-fp300-recessed-ceiling-mount/Aqara FP300 Recessed Mount.stl
+Sonos Amp Wall Mount.stl: dx=228.0, dy=80.0, dz=75.0 | Path: /srv/media/manyfold/models/smart-home/wall-mount/sonos/amp/sonos-amp-wall-mount#103/Sonos Amp Wall Mount.stl
+casetaHub.stl: dx=74.1, dy=39.0, dz=74.1 | Path: /srv/media/manyfold/models/smart-home/mount/caseta/lutron/lutron-caseta-hub-mount-extended#97/casetaHub.stl
+ZSE41_-_Waterproof_Case_Spacer.stl: dx=34.0, dy=66.0, dz=5.0 | Path: /srv/media/manyfold/models/smart-home/sensor/zooz/waterproof/zse41/zse41-waterproof-case-spacer-7157050#10/files/ZSE41_-_Waterproof_Case_Spacer.stl
+Door sensor holder.stl: dx=59.8, dy=37.8, dz=11.0 | Path: /srv/media/manyfold/models/smart-home/sensor/zooz/z-wave/screw-mount-for-zooz-700-series-z-wave-plus-openclose-xs-sensor-zse41-model-files#11/Door sensor holder.stl
+GoogleTV_remote_holder_v3_1h7min.stl: dx=40.0, dy=22.0, dz=36.0 | Path: /srv/media/manyfold/models/smart-home/holder/google-tv/remote/google-tv-remote-holder#94/GoogleTV_remote_holder_v3_1h7min.stl
+WLED-wemos-shield_encolsure_no-sound-case.stl: dx=80.0, dy=70.0, dz=28.6 | Path: /srv/media/manyfold/models/smart-home/enclosure/led/wled/wemos/wled-wemos-shield-case#106/WLED-wemos-shield_encolsure_no-sound-case.stl
+WLED-wemos-shield_encolsure_no-sound-lid.stl: dx=80.0, dy=50.0, dz=5.0 | Path: /srv/media/manyfold/models/smart-home/enclosure/led/wled/wemos/wled-wemos-shield-case#106/WLED-wemos-shield_encolsure_no-sound-lid.stl
+WLED-wemos-shield_encolsure_with_sound-case.stl: dx=80.0, dy=72.6, dz=25.6 | Path: /srv/media/manyfold/models/smart-home/enclosure/led/wled/wemos/wled-wemos-shield-case#106/WLED-wemos-shield_encolsure_with_sound-case.stl
+WLED-wemos-shield_encolsure_with_sound-lid.stl: dx=80.0, dy=52.6, dz=5.0 | Path: /srv/media/manyfold/models/smart-home/enclosure/led/wled/wemos/wled-wemos-shield-case#106/WLED-wemos-shield_encolsure_with_sound-lid.stl
+Cable_Tie_Large.stl: dx=64.4, dy=47.5, dz=15.0 | Path: /srv/media/manyfold/models/cable/tie/zip-tie/cable-tie-large#42/Cable_Tie_Large.stl
+ethernetcablex4.stl: dx=31.0, dy=22.2, dz=8.8 | Path: /srv/media/manyfold/models/cable/network/ethernet/management/ethernet-cable-management#90/ethernetcablex4.stl
+Cord_Hanger.stl: dx=45.0, dy=126.0, dz=3.0 | Path: /srv/media/manyfold/models/cable/hanger/cord/cord-hanger#88/Cord_Hanger.stl
+AppleWatch_Stand.stl: dx=77.1, dy=89.1, dz=36.0 | Path: /srv/media/manyfold/models/watch/apple-watch/charging-stand/apple-watch-charging-stand#13/AppleWatch_Stand.stl
+Dual_Watch_Wall_Hanger.stl: dx=56.2, dy=210.8, dz=52.1 | Path: /srv/media/manyfold/models/watch/custom-design/hanger/wall/dual-watch-wall-hanger#52/Dual_Watch_Wall_Hanger.stl
+Dual_Watch_Charger_Stand_AirPods.stl: dx=57.0, dy=64.9, dz=48.9 | Path: /srv/media/manyfold/models/watch/custom-design/airpods/charger/stand/dual-watch-charger-stand-with-airpods#48/Dual_Watch_Charger_Stand_AirPods.stl
+Dual_Watch_Hanger_with_Charger.stl: dx=56.2, dy=210.8, dz=52.1 | Path: /srv/media/manyfold/models/watch/custom-design/apple-watch/charger/hanger/dual-watch-hanger-with-charger#51/Dual_Watch_Hanger_with_Charger.stl
+Watch_Display_Bulb.stl: dx=60.9, dy=59.9, dz=48.4 | Path: /srv/media/manyfold/models/watch/custom-design/bulb/display/watch-display-bulb#79/Watch_Display_Bulb.stl
+Watch_Display_Bulb_from_Downloads.stl: dx=64.7, dy=64.7, dz=48.4 | Path: /srv/media/manyfold/models/watch/custom-design/bulb/display/watch-display-bulb#79/Watch_Display_Bulb_from_Downloads.stl
+Watch_Display_Bulb_5deg.stl: dx=57.0, dy=67.0, dz=40.5 | Path: /srv/media/manyfold/models/watch/custom-design/bulb/display/angled/watch-display-bulb-5deg#80/Watch_Display_Bulb_5deg.stl
+CR1632-10.stl: dx=21.0, dy=50.5, dz=15.0 | Path: /srv/media/manyfold/models/battery/coin-cell/storage/easy-button-cell-storage#12/CR1632-10.stl
+CR2032-10.stl: dx=25.0, dy=50.5, dz=19.0 | Path: /srv/media/manyfold/models/battery/coin-cell/storage/easy-button-cell-storage#12/CR2032-10.stl
+CR2450-10.stl: dx=29.0, dy=70.5, dz=23.0 | Path: /srv/media/manyfold/models/battery/coin-cell/storage/easy-button-cell-storage#12/CR2450-10.stl
+LR44-10.stl: dx=17.0, dy=75.5, dz=11.0 | Path: /srv/media/manyfold/models/battery/coin-cell/storage/easy-button-cell-storage#12/LR44-10.stl
+AG13_LR44_x20.stl: dx=14.5, dy=139.5, dz=8.7 | Path: /srv/media/manyfold/models/battery/storage/gridfinity/ag13-lr44-cr2032-parametric-button-coin-battery-holder-4372554#15/files/AG13_LR44_x20.stl
+Tool.stl: dx=138.4, dy=85.0, dz=5.0 | Path: /srv/media/manyfold/models/tool/utility/tool#17/Tool.stl
+Metric_screw_remix.stl: dx=70.0, dy=52.1, dz=11.3 | Path: /srv/media/manyfold/models/tool/imperial/metric/screw-gauge/imperial-metric-screw-gauge#95/Metric_screw_remix.stl
+medidor_tornillos.stl: dx=72.0, dy=89.6, dz=10.4 | Path: /srv/media/manyfold/models/tool/imperial/metric/screw-gauge/imperial-metric-screw-gauge#95/medidor_tornillos.stl
+Bouchon.stl: dx=30.0, dy=30.0, dz=12.5 | Path: /srv/media/manyfold/models/capsule/carry/edc/capsule-edc#87/Bouchon.stl
+Tube.stl: dx=30.0, dy=30.0, dz=53.0 | Path: /srv/media/manyfold/models/capsule/carry/edc/capsule-edc#87/Tube.stl
+Enclosure.stl: dx=118.6, dy=67.6, dz=35.0 | Path: /srv/media/manyfold/models/enclosure/led/wled/electrocookie/electrocookie-wled-enclosure#89/Enclosure.stl
+Lid (Sound Reactive).stl: dx=113.4, dy=62.4, dz=3.0 | Path: /srv/media/manyfold/models/enclosure/led/wled/electrocookie/electrocookie-wled-enclosure#89/Lid (Sound Reactive).stl
+Lid.stl: dx=113.4, dy=62.4, dz=3.0 | Path: /srv/media/manyfold/models/enclosure/led/wled/electrocookie/electrocookie-wled-enclosure#89/Lid.stl
+glasses_rack.stl: dx=175.0, dy=240.0, dz=70.0 | Path: /srv/media/manyfold/models/glasses/shelf/rack/case/glasses-case-rack-shelf#92/glasses_rack.stl
+Pill_Box_Bottom.stl: dx=59.7, dy=60.0, dz=24.0 | Path: /srv/media/manyfold/models/medical/persimmon/pillbox/persimmon-pillbox#100/Pill_Box_Bottom.stl
+Pill_Box_Platter.stl: dx=125.8, dy=60.0, dz=24.0 | Path: /srv/media/manyfold/models/medical/persimmon/pillbox/persimmon-pillbox#100/Pill_Box_Platter.stl
+Pill_Box_Top.stl: dx=60.0, dy=60.0, dz=12.5 | Path: /srv/media/manyfold/models/medical/persimmon/pillbox/persimmon-pillbox#100/Pill_Box_Top.stl
+obj_1_Aqara FP2 Unterputz mit Deckel v11.stl: dx=75.0, dy=75.0, dz=35.0 | Path: /srv/media/manyfold/models/new/aqara-fp2-unterputz-mit-deckel#112/obj_1_Aqara FP2 Unterputz mit Deckel v11.stl
+obj_2_Aqara FP2 Unterputz mit Deckel v1.stl: dx=77.0, dy=77.0, dz=1.7 | Path: /srv/media/manyfold/models/new/aqara-fp2-unterputz-mit-deckel#112/obj_2_Aqara FP2 Unterputz mit Deckel v1.stl
+99pct-bulbs-dual-watch-hanger.stl: dx=179.0, dy=168.1, dz=51.9 | Path: /srv/media/manyfold/models/new/99pct-bulbs-dual-watch-hanger#114/99pct-bulbs-dual-watch-hanger.stl
+97pct-bulbs-flat-dual-watch-hanger.stl: dx=176.8, dy=166.4, dz=52.1 | Path: /srv/media/manyfold/models/new/97pct-bulbs-flat-dual-watch-hanger#117/97pct-bulbs-flat-dual-watch-hanger.stl
+ceiling speaker retention clip.stl: dx=31.2, dy=39.7, dz=11.0 | Path: /srv/media/manyfold/models/new/ceiling-speaker-retention-clip#118/ceiling speaker retention clip.stl
+Glasses_hanger.stl: dx=56.0, dy=17.3, dz=14.0 | Path: /srv/media/manyfold/models/new/downloaded#120/Glasses_hanger.stl
+Glasses_hanger_modified.stl: dx=70.0, dy=22.0, dz=14.0 | Path: /srv/media/manyfold/models/new/downloaded#120/Glasses_hanger_modified.stl
+part_260605.stl: dx=30.0, dy=99.5, dz=41.0 | Path: /srv/media/manyfold/models/part_260605.stl
+oven_mitt_hook.stl: dx=30.0, dy=99.5, dz=41.0 | Path: /srv/media/manyfold/models/oven_mitt_hook/oven_mitt_hook.stl

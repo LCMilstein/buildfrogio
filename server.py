@@ -207,7 +207,7 @@ async def ai_chat(req: ChatRequest):
         "6. Lids must be built as a single solid part resting on Z=0 so they print flat without supports. Merge the top plate and friction lip correctly before moving.\n"
         "7. Wrap your script in standard markdown code blocks.\n"
         "8. Always check if we built something like it or related before and consider whether we're tweaking what came before or starting something new. When not 100% clear, ask the user.\n"
-        "9. Before considering a script 'complete', ALWAYS generate a 3D preview (e.g. using render_stl.py) to visually verify the STL output. Do not present the script as finished without this visual check."
+        "9. AUTONOMOUS REVIEW LOOP: Before presenting a script to the user as 'finished', you MUST run it through this background loop: Design -> Render (using render_stl.py or equivalent) -> Self-Review -> Revise. Only show the user the final result once you are satisfied it meets all geometric requirements. If you fail to fix the issue after 3 revisions, stop perseverating and ask the user for help."
     )
     
     try:

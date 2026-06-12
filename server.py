@@ -205,7 +205,9 @@ async def ai_chat(req: ChatRequest):
         "4. NEVER blindly split and extrude STEP features. To make an extension, hollow out the inner cavity first to destroy unwanted internal artifacts (roofs, hex posts) before extending.\n"
         "5. For a seamless outer collar, extract the exact cross-section face at the cut-plane (e.g. `f = split_part.faces().filter_by(bd.Axis.Z).sort_by(bd.Axis.Z)[-1]`) and extrude it. Do NOT use generic Rectangles if the case has draft angles/chamfers.\n"
         "6. Lids must be built as a single solid part resting on Z=0 so they print flat without supports. Merge the top plate and friction lip correctly before moving.\n"
-        "7. Wrap your script in standard markdown code blocks."
+        "7. Wrap your script in standard markdown code blocks.\n"
+        "8. Always check if we built something like it or related before and consider whether we're tweaking what came before or starting something new. When not 100% clear, ask the user.\n"
+        "9. Before considering a script 'complete', ALWAYS generate a 3D preview (e.g. using render_stl.py) to visually verify the STL output. Do not present the script as finished without this visual check."
     )
     
     try:
@@ -581,7 +583,7 @@ def printer_print(req: PrintRequest):
                     payload["print"]["ams_mapping"] = [req.ams_slot]
                 
                 try:
-                    info = mqtt_client.publish(f"device/{serial_number}/request", json.dumps(payload), qos=1)
+                    info = mqtt_client.publish(f"device/{serial_number}/request", json.dumps(payload), qos=0)
                     info.wait_for_publish()
 
                     mqtt_client.loop_stop()

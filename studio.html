@@ -1473,6 +1473,7 @@ result = cq.Workplane("XY").box(10, 10, 10)
                     const response = await fetch(endpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
                         body: JSON.stringify({ script: code, output_format: 'stl' })
                     });
                     
@@ -1534,6 +1535,7 @@ result = cq.Workplane("XY").box(10, 10, 10)
                     const responseStl = await fetch('/files/save', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
                         body: JSON.stringify({
                             file_base64: currentBase64,
                             filename: stlFilename,
@@ -1548,6 +1550,7 @@ result = cq.Workplane("XY").box(10, 10, 10)
                     await fetch('/files/save', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
                         body: JSON.stringify({
                             file_base64: scriptBase64,
                             filename: scriptFilename,
@@ -1591,6 +1594,7 @@ result = cq.Workplane("XY").box(10, 10, 10)
                     const response = await fetch('/printer/print', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
                         body: JSON.stringify({
                             file_base64: currentBase64,
                             filename: filename,
@@ -1809,7 +1813,7 @@ result = cq.Workplane("XY").box(10, 10, 10)
                 
                 try {
                     loadFileList.innerHTML = '<div style="padding:12px; text-align:center;">Loading...</div>';
-                    const response = await fetch('/files/list?subfolder=' + encodeURIComponent(subfolder));
+                    const response = await fetch('/files/list?subfolder=' + encodeURIComponent(subfolder), { credentials: 'same-origin' });
                     const data = await response.json();
                     
                     if (!data.success) throw new Error(data.error);
@@ -1860,7 +1864,7 @@ result = cq.Workplane("XY").box(10, 10, 10)
                 loadingScreen.classList.add('show');
                 modalLoad.classList.remove('show');
                 try {
-                    const response = await fetch('/files/read?filepath=' + encodeURIComponent(filepath) + '&_t=' + Date.now());
+                    const response = await fetch('/files/read?filepath=' + encodeURIComponent(filepath) + '&_t=' + Date.now(), { credentials: 'same-origin' });
                     const data = await response.json();
                     if (!data.success) throw new Error(data.error);
                     
